@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>도서목록</h2>
+	<hr>
+	<table>
+		<thead>
+			<tr>
+				<th>도서번호</th>
+				<th>도서명</th>
+				<th>출판사</th>
+				<th>가격</th>
+				<th>action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="b:${list}">
+				<td th:text="${b.bookid}"></td>
+				<td>
+					<a th:href="@{/detailBook/{bookid}(bookid=${b.bookid})}" 
+					th:text="${b.bookname}"></a>
+				</td>
+				<td th:text="${b.publisher}"></td>
+				<td th:text="${b.price}"></td>
+				<td>
+					<a th:href="@{/updateBook/{bookid}(bookid=${b.bookid})}" th:text="수정"></a>
+					<a th:href="@{/deleteBook/{bookid}(bookid=${b.bookid})}" th:text="삭제"></a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<a th:href="@{/insertBook}" th:text="도서등록"></a>
+</body>
+</html>

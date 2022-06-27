@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>주문수정</h2>
+	<hr>
+	<form action="/insertOrders" method="post">
+	<input type="hidden" th:name="orderid" th:value="${o.orderid}"><br>
+	고객번호: 
+	<select th:name="customer.custid">
+		<option th:each="c:${c_list}" th:text="${c.name}" th:value="${c.custid}"></option>	
+	</select><br>
+	도서번호:
+	<select th:name="book.bookid">
+		<option th:each="b:${b_list}" th:text="${b.bookname}" th:value="${b.bookid}"></option>
+	</select>
+	주문가격: <input type="number" th:name="saleprice">
+<!--	주문일: <input type="date" th:name="orderdate">-->
+	<input type="submit" th:value="주문">
+	</form>
+</body>
+</html>

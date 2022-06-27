@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	span{
+		display: inline-block;
+		margin: 5px;
+		cursor: pointer;
+	}
+</style>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=bf5eb602e7479411ca85be04bd126fbb"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+	/*야영(캠핑)장명: "오션파크"
+	소재지도로명주소: "충청남도 태안군 남면 몽산포길 161"
+	위도: "36.6744920527"
+	경도: "126.2808663915"*/
+
+$(function(){
+	
+	// 지도를 표시할 div 
+	mapContainer = document.getElementById('map'); 
+	
+	//mapContainer =  $("#map");
+	//카카오 맵 api가 jquery기반으로 만들어 진 것이 아니기 때문에 이렇게 하면 지도가 표시가 되지 않습니다.
+	
+	
+	//지도의 옵션객체를 생성합니다.
+	mapOption = { 
+        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        level: 1 // 지도의 확대 레벨
+	};
+	
+	// 지도를 생성합니다	
+	map = new kakao.maps.Map(mapContainer, mapOption); 
+	
+	var arr;
+	
+	var totalRecords=1;		//전체레코드 수
+	var totalPage=1;		//전체페이지 수	
+	var pageSize=10;		//한화면에 보여줄 레코드 수 
+	var pageGroup = 10;		//한화면에 보여줄 페이지 수
+	
+	
+	$.ajax({
+		url:"전국야영(캠핑)장표준데이터.json",
+		success:function(data){
+			//data ==> {"fields":[], "records":[]}
+			arr = data['records'];	
+			console.log("전체데이터수:"+arr.length)
+			totalRecords = arr.length;
+			totalPage =  Math.ceil( totalRecords/pageSize );			
+			printPage(1); 		//현재페이지에 보여줄 레코드를 10개를 출력
+			printPageNumber(1);	//현재페이지에 보여줄 페이지 번호 10개를 출력
+		}
+	});	
+	
+	
+	//현재페이지에 해당하는 레코드 10개를 출력
+	function printPage(pageNUM){ //매개변수로 페이지 번호를 전달 바당요
+		$("#list").empty(); 	//이전에 내용을 모두 지워줍니다.
+		
+		var start = (pageNUM-1)*pageSize + 1; 	//현재페이지에 따른 보여줄 시작레코드를 계산
+		var end = start + pageSize -1;			//현재페이지에 따른 보여줄 마지막 레코드를 계산
+		
+		for(var i=start;i<=end;i++){  			//현재페이지에 따른 시작레코드의 위치 부터 마지막 레코드까지 반복문 실행
+			var row = arr[i];  					//반복문을 수행하면 야영장 정보를 하나씩 갖고 옵니다
+			//{야영(캠핑)장명: '오션파크', 야영(캠핑)장구분: '야영장', 위도: '36.6744920527', 경도: '126.2808663915', 소재지도로명주소: '충청남도 태안군 남면 몽산포길 161', …}
+			var tr = $("<tr></tr>");
+			$(tr).addClass("item");//다른 tr과 구별하도록 클래스이름을 부여 합니다.
+			$(tr).attr("lat",row['위도']);  //생성된 tr태그에 위도의 속성값을 설정합니다.
+			$(tr).attr("lng",row['경도']);  //생성된 tr태그에 경도의 속성괎을 설정합니다.
+			/*$(tr).attr({
+				lat:row['위도'],
+				lng:row['경도']
+			})*/						   //위도와 경도의 설정 객체의 형태로{} 한번에 설정할 수도 있어요.
+			$(tr).append( $("<td></td>").html(  row['야영(캠핑)장명'] ) );
+			$(tr).append( $("<td></td>").html(  row['소재지도로명주소'] ) );
+			$(tr).append( $("<td></td>").html(  row['위도'] ) );
+			$(tr).append( $("<td></td>").html(  row['경도'] ) );
+			$("#list").append(tr);
+		}
+	}//end pringPage
+	
+	//2227 /10/10
+	
+	
+	//전체 레코드수가 2227개이고 한 화면에 10개씩 출력하려면
+	//전체 페이지의 수는 223페이지 입니다.
+	//이 전체페이지수를 한 화면에 10개의 페이지만 출력하고 싶어요
+	//한화면에 10개의 페이지번호를 출력하고 싶어요
+	//만약에 현재페이지가 1,2,3,4,5,6,7,8,9,10,  ==> 시작페이지는 1, 마지막페이지는 10
+	//~~~~           11,12,13,14,15,16,17,18,19,20  ==> 시작페이지는 11 마지막페이지는 20
+	
+	function printPageNumber(pageNUM){
+		$("#pageing").empty();  //페이지번호 출력하는 자리를 지워 줍니다.
+		
+		//
+		var startPage = Math.floor((pageNUM-1)/pageGroup)*pageGroup  + 1 ; 	
+		var endPage = startPage + pageGroup - 1;
+		
+		
+		//위의 계산식에서 
+		//만약 현재페이지가 222페이지라면
+		//endPage가 230페이지가 됩니다.
+		//그러나 우리가 갖고 있는 데이의 마지막페이지느 223페이지 입니다.
+		//그것을 넘지 않도록 합니다.
+		if(endPage > totalPage){
+			endPage = totalPage;
+		}
+		
+		//현재 보여주는 시작페이지가 1보다 크다면
+		//[이전]을 출력합니다.
+		//만약 17페이지를 보고 있다면
+		//현재 화면에는 11페이지 부터 20페이지까지 페이지번호가 출력되어 있어오
+		//이때 [이전]을 눌렀을때에는 10페이지를 보여 주도록 합니다.
+		
+		if(startPage > 1){
+			var span = $("<span></span>").html("[이전]");
+			$(span).attr("page",startPage - 1);
+			$("#pageing").append(span);
+		}
+		if(startPage > 1){
+			var span = $("<span></span>").html("[맨 앞으로]");
+			$(span).attr("page",1);
+			$("#pageing").append(span);
+		}
+		
+		//현재 페이지에 따른 시작페이지 부터 마지막페이지까지 페이지번호를 출력
+		for(i = startPage; i<=endPage ; i++){
+			var span = $("<span></span>").html(i);
+			$(span).attr("page",i);
+			$("#pageing").append(span);					
+		}
+		
+		
+		//현재페이지에 보여준 마지막 페이지가 totalPage보다 더 작다면 
+		//[다음]을 출력한다.
+		//만약, 현재 17페이지를 보고 있다면
+		//화면에 보여주는 시작페이는 11이고 마지막 페이지는 20입니다.
+		//이때 , [다음]을 누르면 21페이지를 보여 주도록 합니다.
+		if(endPage < totalPage){
+			var span = $("<span></span>").html("[다음]");
+			$(span).attr("page",endPage+1);
+			$("#pageing").append(span);
+		}
+		
+		//[맨 끝으로]
+		if(endPage < totalPage){
+			var span = $("<span></span>").html("[맨끝으로]");
+			page = totalPage-(totalPage%pageGroup-1)
+			$(span).attr("page",page);
+			$("#pageing").append(span);
+		}
+	}
+	
+	
+	//미래에 만들어진 페이지번호 출력을 한 span태그의 클릭이벤트를 설정합니다.
+	$(document).on("click", "span", function(){
+		var page = $(this).attr("page");//page속성값을 읽어 옵니다.
+		printPage(page);				//그 페이지에 보여줄 레코드 10개를 출력
+		printPageNumber(page);			//그 페이지에 보여줄 페이지번호 10개를 출력
+	});
+	
+	
+	//미래에 만들어진 item클래스를 갖는 태그에 클릭이벤트가 발생되었을때
+	$(document).on("click",".item", function(){
+		var lat = Number( $(this).attr("lat")); //lat 속성값을 읽어 옵니다.
+		var lng = Number( $(this).attr("lng")); //lng 속성값을 읽어 옵니다.
+		
+		
+		//카카오가 제공하는 위도와 경도의 대한 객체인 LatLng객체를 생성합니다.
+		newLatLng = new kakao.maps.LatLng(lat, lng);
+		
+		//그 위도와 경도로 지도를 부드럽게 이동시킵니다.
+		map.panTo(newLatLng);
+		
+		
+		// 지도에 마커를 표시하기 위한 Marker객체를 생성합니다.
+		var marker = new kakao.maps.Marker({
+		    position: newLatLng
+		});
+
+		// 마커가 지도 위에 표시되도록 설정합니다
+		marker.setMap(map);
+		
+		
+	});
+})
+
+
+
+
+
+
+</script>
+</head>
+<body>
+	<div id="pageing"></div>
+	<table border="1">
+		<thead>
+			<tr>
+				<th>캠핑장명</th>
+				<th>주소</th>				
+				<th>위도</th>				
+				<th>경도</th>				
+			</tr>
+		</thead>
+		<tbody id="list">		
+		</tbody>
+	</table>
+	<hr>
+	<div id="map" style="width:100%;height:350px;"></div>
+</body>
+</html>
+
+
+
+
+
+
+

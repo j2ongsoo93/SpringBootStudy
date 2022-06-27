@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>고객정보</h2>
+	<hr>
+	<p>고객번호: <span th:text="${c.custid}"></span></p>
+	<p>고객명: <span th:text="${c.name}"></span></p>
+	<p>주소: <span th:text="${c.address}"></span></p>
+	<p>전화번호: <span th:text="${c.phone}"></span></p>
+</body>
+</html>

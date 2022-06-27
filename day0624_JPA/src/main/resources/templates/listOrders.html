@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>주문내역</h2>
+	<hr>
+	<table>
+		<thead>
+			<tr>
+				<th>주문번호</th>
+				<th>고객명</th>
+				<th>도서명</th>
+				<th>결제가격</th>
+				<th>주문일</th>
+				<th>action</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr th:each="o:${o}">
+				<td th:text="${o.orderid}"></td>
+				<td th:text="${o.customer.name}"></td>
+				<td th:text="${o.book.bookname}"></td>
+				<td th:text="${o.saleprice}"></td>
+				<td th:text="${o.orderdate}"></td>
+				<td>
+					<a th:href="@{/updateOrders/{orderid}(orderid=${o.orderid})}" th:text="수정"></a>
+					<a th:href="@{/deleteOrders/{orderid}(orderid=${o.orderid})}" th:text="삭제"></a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</body>
+</html>

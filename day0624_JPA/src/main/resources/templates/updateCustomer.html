@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<h2>고객정보수정</h2>
+	<hr>
+	<form action="/saveCustomer" method="post">
+		<input type="hidden" th:name="custid" th:value="${c.custid}">
+		고객명: <input type="text" th:name="name" th:value="${c.name}"><br>
+		주소: <input type="text" th:name="address" th:value="${c.address}"><br>
+		전화번호: <input type="text" th:name="phone" th:value="${c.phone}"><br>
+		<input type="submit" th:value="수정">
+	</form>
+</body>
+</html>

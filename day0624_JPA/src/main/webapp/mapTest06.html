@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	span{display: inline-block;; margin: 5px; cursor: pointer;}
+</style>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=fc43af8f512c8e7253c1d1fc1bcfafdb"></script>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	mapContainer = document.getElementById('map'); // 지도를 표시할 div 
+	
+	mapOption = { 
+	        center: new kakao.maps.LatLng(37.482370, 126.712120), // 지도의 중심좌표
+	        level: 3 // 지도의 확대 레벨
+	};
+	
+
+	map = new kakao.maps.Map(mapContainer, mapOption); 
+	// 지도를 생성합니다	
+	// 마커가 지도 위에 표시되도록 설정합니다
+	
+	var arr;
+	var totalRecords = 1; //전체 레코드 수
+	var totalPage = 1; // 전체 페이지 수
+	var pageSize = 10; // 한 화면에 표시될 레코드 수
+	var pageGroup = 10; //한 화면에 표시될 페이지 번호 수
+	
+	$.ajax({
+		url:"전국야영(캠핑)장표준데이터.json",
+		success:function(data){
+			arr = data['records'];
+			totalRecords = arr.length;
+			totalPage = Math.ceil(totalRecords/pageSize);
+				
+			printPage(1);
+			printPageNumber(1);
+		}
+	});
+	
+	
+	
+	function printPageNumber(pageNum){
+		var startPage = Math.floor(((pageNum-1)/pageGroup)*pageGroup+1);
+		var endPage = startPage+pageGroup-1;
+		
+		if(endPage>totalPage){
+			endPage = totalPage;
+		}
+		
+		if(startPage>1){
+			var span = $("<span></span>").html("[이전]");
+			$(span).attr("page",startPage-1);
+			$("#paging").append(span);
+		}
+		
+		for(i=startPage;i<=endPage;i++){
+			var span = $("<span></span>").html(i);
+			$(span).attr("page",i);
+			$("#paging").append(span);
+			$(span).click(function(){
+				var pageNum = Number($(this).html());
+				printPage(pageNum);
+			});
+		}
+		
+		if(endPage<totalPage){
+			var span2 = $("<span></span>").html("[다음]");
+			$(span).attr("page",endPage+1);
+			$("#paging").append(span);
+		}
+	}
+	
+	function printPage(pageNum){
+		$("#list").empty();
+		var start = (pageNum-1)*pageSize + 1;
+		var end = start + pageSize -1;
+		
+		for(var i=start;i<=end;i++){
+			var row = arr[i];
+			var tr = $("<tr></tr>");
+			$(tr).append($("<td></td>").html(row['야영(캠핑)장명']));
+			$(tr).append($("<td></td>").html(row['소재지도로명주소']));
+			$(tr).append($("<td></td>").html(row['위도']));
+			$(tr).append($("<td></td>").html(row['경도']));
+			$(tr).addClass("item");
+			$(tr).attr("lat", row['위도']);
+			$(tr).attr("lng", row['경도']);
+			$("#list").append(tr);
+		}
+		
+	};
+	
+	$(document).on("click","span",function(){
+		var page = $(this).attr("page");
+		printPage(page);
+		prrinPageNumber(page);
+	});
+	
+	$(document).on("click",".item",function(){
+		var lat = Number($(this).attr("lat"));
+		var lng = Number($(this).attr("lng"));
+		
+		newLatLng = new kakao.maps.LatLng(lat, lng);
+		map.panTo(newLatLng);
+		
+		var marker = new kakao.maps.Marker({
+		    position: new kakao.maps.LatLng(lat, lng)
+		});
+		
+		marker.setMap(map);
+	});
+});
+</script>
+</head>
+<body>
+	<div id="paging"></div>
+	<table>
+		<thead>
+			<tr>
+				<th>캠핑장명</th>
+				<th>주소</th>
+				<th>위도</th>
+				<th>경도</th>
+			</tr>
+		</thead>
+		<tbody id="list"></tbody>
+	</table>
+	<hr>
+	<div id = "map" style="width:100%;height:350px;"></div>
+</body>
+</html>
