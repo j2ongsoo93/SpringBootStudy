@@ -8,6 +8,6 @@ public class Day0624JpaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Day0624JpaApplication.class, args);
-	}
+	} 
 
 }
